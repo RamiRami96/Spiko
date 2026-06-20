@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { ReactNode } from "react";
 import { ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   topContent: ReactNode;
@@ -8,20 +9,29 @@ type Props = {
 };
 
 export function ScreenLayout({ topContent, children }: Props) {
+  const { top } = useSafeAreaInsets();
+
   return (
-    <View className="flex-1">
+    <View style={{ flex: 1 }}>
       <LinearGradient
-        colors={["#EC4899", "#8B5CF6", "#4F46E5"]}
+        colors={["#06B6D4", "#4F46E5"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        className="h-56 items-center justify-end pb-10 px-6"
+        style={{
+          height: 224 + top,
+          paddingTop: top + 16,
+          paddingBottom: 40,
+          paddingHorizontal: 24,
+          alignItems: "center",
+          justifyContent: "flex-end",
+        }}
       >
         {topContent}
       </LinearGradient>
 
       <ScrollView
-        className="flex-1 bg-white rounded-t-3xl -mt-6"
-        contentContainerClassName="px-6 pt-8 pb-12"
+        style={{ flex: 1, backgroundColor: "#fff", borderTopLeftRadius: 24, borderTopRightRadius: 24, marginTop: -24 }}
+        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 32, paddingBottom: 48 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >

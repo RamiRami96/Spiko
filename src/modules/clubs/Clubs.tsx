@@ -1,4 +1,5 @@
 import { FlatList, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Club } from "@/shared/models/club.model";
 
@@ -12,15 +13,16 @@ export type ClubsProps = {
 };
 
 export function Clubs({ clubs, searchQuery, onSearchChange }: ClubsProps) {
+  const { top } = useSafeAreaInsets();
+
   return (
-    <View className="flex-1 bg-background">
+    <View style={{ flex: 1 }}>
       <FlatList
         data={clubs}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <ClubCard club={item} />}
         ListHeaderComponent={
-          <View className="gap-4 pb-2">
-            <Text className="text-2xl font-bold text-gray-900">Speaking Clubs</Text>
+          <View style={{ gap: 16, paddingBottom: 8 }}>
             <SearchBar value={searchQuery} onChangeText={onSearchChange} />
           </View>
         }
@@ -30,7 +32,7 @@ export function Clubs({ clubs, searchQuery, onSearchChange }: ClubsProps) {
             <Text className="text-gray-300 text-sm">Try a different search</Text>
           </View>
         }
-        contentContainerClassName="px-4 pt-6 pb-4 gap-3"
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: top + 16, paddingBottom: 16, gap: 12 }}
         showsVerticalScrollIndicator={false}
       />
     </View>

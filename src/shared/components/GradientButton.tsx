@@ -16,10 +16,10 @@ export function GradientButton({ label, onPress, loading, disabled }: Props) {
       className="active:opacity-80"
     >
       <LinearGradient
-        colors={["#EC4899", "#8B5CF6", "#4F46E5"]}
+        colors={["#06B6D4", "#4F46E5"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
-        className="h-14 rounded-full items-center justify-center"
+        style={{ height: 56, borderRadius: 9999, alignItems: "center", justifyContent: "center" }}
       >
         {loading ? (
           <ActivityIndicator color="#fff" />

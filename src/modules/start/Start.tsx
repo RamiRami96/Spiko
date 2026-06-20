@@ -14,10 +14,10 @@ export type StartProps = {
 export function Start({ onGetStarted, onSignIn, logoStyle, titleStyle, descStyle, buttonsStyle }: StartProps) {
   return (
     <LinearGradient
-      colors={["#EC4899", "#8B5CF6", "#4F46E5"]}
+      colors={["#06B6D4", "#4F46E5"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      className="flex-1 items-center justify-between px-6 pt-20 pb-12"
+      style={{ flex: 1, alignItems: "center", justifyContent: "space-between", paddingHorizontal: 24, paddingTop: 80, paddingBottom: 48 }}
     >
       <View className="flex-1 items-center justify-center gap-8">
         <Animated.View style={logoStyle}>
@@ -53,7 +53,7 @@ export function Start({ onGetStarted, onSignIn, logoStyle, titleStyle, descStyle
           onPress={onGetStarted}
           className="bg-white h-14 rounded-full items-center justify-center active:opacity-80"
         >
-          <Text className="text-violet-600 font-semibold text-base">Create Account</Text>
+          <Text className="text-primary font-semibold text-base">Create Account</Text>
         </Pressable>
 
         <Pressable

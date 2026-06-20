@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, Text, View } from "react-native";
+import { GlassView } from "expo-glass-effect";
+import { Pressable, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Route, TABS } from "@/shared/models/navigation.model";
@@ -13,9 +14,12 @@ export function BottomNav({ state, navigation }: BottomNavProps) {
   const { bottom } = useSafeAreaInsets();
 
   return (
-    <View
-      className="flex-row bg-white border-t border-gray-100"
-      style={{ paddingBottom: bottom || 12 }}
+    <GlassView
+      glassEffectStyle='clear'
+      style={{
+        flexDirection: "row",
+        paddingBottom: bottom,
+      }}
     >
       {state.routes.map((route, index) => {
         const tab = TABS.find((t) => t.name === route.name);
@@ -27,19 +31,19 @@ export function BottomNav({ state, navigation }: BottomNavProps) {
           <Pressable
             key={route.key}
             onPress={() => navigation.navigate(route.name)}
-            className="flex-1 items-center pt-3 pb-1 gap-1 active:opacity-70"
+            style={{ flex: 1, alignItems: "center", paddingTop: 12, paddingBottom: 4, gap: 4 }}
           >
             <Ionicons
               name={isActive ? tab.iconActive : tab.icon}
               size={24}
-              color={isActive ? "#4F46E5" : "#9CA3AF"}
+              color={isActive ? "#fff" : "rgba(255,255,255,0.5)"}
             />
-            <Text className={`text-xs font-medium ${isActive ? "text-primary" : "text-gray-400"}`}>
+            <Text style={{ fontSize: 12, fontWeight: "500", color: isActive ? "#fff" : "rgba(255,255,255,0.5)" }}>
               {tab.label}
             </Text>
           </Pressable>
         );
       })}
-    </View>
+    </GlassView>
   );
 }

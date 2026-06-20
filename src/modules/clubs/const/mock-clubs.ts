@@ -3,16 +3,16 @@ import { Club } from "@/shared/models/club.model";
 export const MOCK_CLUBS: Club[] = [
   {
     id: "1",
-    name: "Public Speaking Masters",
+    name: "Pogodam",
     description: "A club for professionals looking to sharpen their public speaking and presentation skills in a supportive environment.",
-    location: "New York, NY",
+    location: "Astana",
     maxMembers: 20,
     currentMemberCount: 14,
     status: "active",
     startDate: "2026-07-05T18:00:00.000Z",
     endDate: "2026-07-05T20:00:00.000Z",
     createdAt: "2026-06-01T10:00:00.000Z",
-    host: { id: "h1", name: "Alice Johnson" },
+    host: { id: "h1", name: "Zhuldyz" },
     isRegistered: false,
   },
   {

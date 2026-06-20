@@ -1,9 +1,7 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { authService } from "@/shared/services";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { router } from "expo-router";
 import { useForm } from "react-hook-form";
-
-import { authService } from "@/shared/services";
-
 import { SignUpFormData, signUpSchema } from "../schemas/sign-up.schema";
 import { SignUp } from "../SignUp";
 
@@ -14,7 +12,7 @@ export function SignUpForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
+    resolver: standardSchemaResolver(signUpSchema),
     defaultValues: {
       name: "",
       email: "",

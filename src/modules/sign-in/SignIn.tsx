@@ -1,7 +1,7 @@
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { Pressable, Text, View } from "react-native";
 
-import { GradientButton, Input, ScreenLayout, SocialButtons } from "@/shared/components";
+import { GradientButton, Input, ScreenLayout } from "@/shared/components";
 
 import { SignInFormData } from "./schemas/sign-in.schema";
 
@@ -74,8 +74,6 @@ export function SignIn({
         </View>
 
         <GradientButton label="Log In" onPress={onSubmit} loading={isSubmitting} />
-
-        <SocialButtons label="Sign in with" />
 
         <View className="flex-row justify-center gap-1">
           <Text className="text-gray-500 text-sm">Don't have an account?</Text>
