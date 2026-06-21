@@ -10,9 +10,10 @@ export type ClubsProps = {
   clubs: Club[];
   searchQuery: string;
   onSearchChange: (text: string) => void;
+  onPressClub: (id: string) => void;
 };
 
-export function Clubs({ clubs, searchQuery, onSearchChange }: ClubsProps) {
+export function Clubs({ clubs, searchQuery, onSearchChange, onPressClub }: ClubsProps) {
   const { top } = useSafeAreaInsets();
 
   return (
@@ -20,7 +21,7 @@ export function Clubs({ clubs, searchQuery, onSearchChange }: ClubsProps) {
       <FlatList
         data={clubs}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ClubCard club={item} />}
+        renderItem={({ item }) => <ClubCard club={item} onPress={() => onPressClub(item.id)} />}
         ListHeaderComponent={
           <View style={{ gap: 16, paddingBottom: 8 }}>
             <SearchBar value={searchQuery} onChangeText={onSearchChange} />

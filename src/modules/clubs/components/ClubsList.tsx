@@ -1,9 +1,11 @@
+import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 
 import { Clubs } from "../Clubs";
 import { MOCK_CLUBS } from "../const/mock-clubs";
 
 export function ClubsList() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredClubs = useMemo(() => {
@@ -22,6 +24,7 @@ export function ClubsList() {
       clubs={filteredClubs}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
+      onPressClub={(id) => router.push(`/clubs/${id}`)}
     />
   );
 }
