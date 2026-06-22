@@ -1,19 +1,26 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Row } from "./components/Row";
 
 import { User } from "@/shared/models/user.model";
 
+import { ApplicantRow } from "./components/ApplicantRow";
+import { Row } from "./components/Row";
+import { Applicant } from "./const/mock-applicants.const";
 
 export type SettingsProps = {
   user: User | null;
   isLoading: boolean;
+  isHost: boolean;
+  hostedClubName?: string;
+  applicants: Applicant[];
+  onAccept: (userId: string) => void;
+  onReject: (userId: string) => void;
   onSignOut: () => void;
   onDeleteAccount: () => void;
 };
 
-export function Settings({ user, isLoading, onSignOut, onDeleteAccount }: SettingsProps) {
+export function Settings({ user, isLoading, isHost, hostedClubName, applicants, onAccept, onReject, onSignOut, onDeleteAccount }: SettingsProps) {
   const { top } = useSafeAreaInsets();
 
   return (
@@ -38,6 +45,28 @@ export function Settings({ user, isLoading, onSignOut, onDeleteAccount }: Settin
           <Row icon="mail-outline" label="Email" value={user?.email} />
           <Row icon="calendar-outline" label="Date of Birth" value={user?.dateOfBirth} />
         </View>
+
+        {isHost && (
+          <View className="mx-4 mb-4 bg-white/15 rounded-3xl px-4">
+            <Text className="text-xs font-semibold text-white/60 uppercase tracking-widest pt-4 pb-1">
+              {hostedClubName ? `Applications — ${hostedClubName}` : "Applications"}
+            </Text>
+            {applicants.length === 0 ? (
+              <View className="py-4">
+                <Text className="text-white/40 text-sm text-center">No pending applications</Text>
+              </View>
+            ) : (
+              applicants.map((a) => (
+                <ApplicantRow
+                  key={a.id}
+                  name={a.name}
+                  onAccept={() => onAccept(a.id)}
+                  onReject={() => onReject(a.id)}
+                />
+              ))
+            )}
+          </View>
+        )}
 
         <View className="mx-4 mb-8 gap-3">
           <Pressable

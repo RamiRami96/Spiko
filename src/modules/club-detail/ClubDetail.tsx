@@ -1,18 +1,20 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { clubRegistration } from "@/modules/club-detail/const/club-registration.const";
+import { MOCK_CLUBS } from "@/modules/clubs/const/mock-clubs";
+import { useCurrentUser } from "@/modules/settings/hooks/useCurrentUser";
 import { GradientButton } from "@/shared/components";
-import { Club } from "@/shared/models/club.model";
 import { formatDate } from "@/shared/utils/date.utils";
 
-import { STATUS_STYLES } from "./const/status-styles";
+import { STATUS_STYLES } from "@/shared/const/status-styles";
 
 type Props = {
-  club: Club;
-  onApply: () => void;
+  id: string;
   onBack: () => void;
 };
 
@@ -24,9 +26,23 @@ function formatTime(dateStr: string) {
   });
 }
 
-export function ClubDetail({ club, onApply, onBack }: Props) {
+export function ClubDetail({ id, onBack }: Props) {
+  const router = useRouter();
+  const currentUser = useCurrentUser();
+  const club = MOCK_CLUBS.find((c) => c.id === id);
+
+  if (!club) return null;
+
+  const isHost = currentUser?.id === club.host.id;
+  const alreadyApplied = clubRegistration.hasApplied(club.id);
+
+  const handleApply = () => {
+    clubRegistration.apply(club.id);
+    router.replace("/(main)/clubs");
+  };
   const { top, bottom } = useSafeAreaInsets();
   const [successVisible, setSuccessVisible] = useState(false);
+  const [warnVisible, setWarnVisible] = useState(false);
   const status = STATUS_STYLES[club.status];
   const canApply = !club.isRegistered && club.status === "active";
   const membersRatio = club.currentMemberCount / club.maxMembers;
@@ -40,11 +56,17 @@ export function ClubDetail({ club, onApply, onBack }: Props) {
     ? "Cancelled"
     : "Apply to Join";
 
-  const handleApplyPress = () => setSuccessVisible(true);
+  const handleApplyPress = () => {
+    if (alreadyApplied) {
+      setWarnVisible(true);
+    } else {
+      setSuccessVisible(true);
+    }
+  };
 
   const handleConfirm = () => {
     setSuccessVisible(false);
-    onApply();
+    handleApply();
   };
 
   return (
@@ -141,17 +163,20 @@ export function ClubDetail({ club, onApply, onBack }: Props) {
           </View>
         </View>
 
-        <View style={{ paddingTop: 4 }}>
-          {canApply ? (
-            <GradientButton label={applyLabel} onPress={handleApplyPress} />
-          ) : (
-            <View className="h-14 rounded-full bg-white/15 items-center justify-center">
-              <Text className="text-white/50 font-semibold text-base">{applyLabel}</Text>
-            </View>
-          )}
-        </View>
+        {!isHost && (
+          <View style={{ paddingTop: 4 }}>
+            {canApply ? (
+              <GradientButton label={applyLabel} onPress={handleApplyPress} />
+            ) : (
+              <View className="h-14 rounded-full bg-white/15 items-center justify-center">
+                <Text className="text-white/50 font-semibold text-base">{applyLabel}</Text>
+              </View>
+            )}
+          </View>
+        )}
       </ScrollView>
 
+      {/* Success modal */}
       <Modal visible={successVisible} transparent animationType="fade">
         <View
           style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", alignItems: "center", justifyContent: "center", padding: 24 }}
@@ -172,8 +197,38 @@ export function ClubDetail({ club, onApply, onBack }: Props) {
                 </Text>
               </View>
             </View>
-
             <GradientButton label="Got it" onPress={handleConfirm} />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Warning modal */}
+      <Modal visible={warnVisible} transparent animationType="fade">
+        <View
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", alignItems: "center", justifyContent: "center", padding: 24 }}
+        >
+          <View className="bg-black/60 rounded-3xl p-6 w-full gap-5" style={{ borderWidth: 1, borderColor: "rgba(255,255,255,0.12)" }}>
+            <View className="items-center gap-4">
+              <View className="w-16 h-16 rounded-full bg-amber-500/20 items-center justify-center">
+                <Ionicons name="warning" size={40} color="#F59E0B" />
+              </View>
+              <View className="items-center gap-1.5">
+                <Text className="text-white font-bold text-xl text-center">
+                  Already Applied
+                </Text>
+                <Text className="text-white/60 text-sm text-center leading-5">
+                  You have already submitted an application to{"\n"}
+                  <Text className="text-white font-semibold">{club.name}</Text>
+                  {"\n"}Please wait for the host to respond.
+                </Text>
+              </View>
+            </View>
+            <Pressable
+              onPress={() => setWarnVisible(false)}
+              className="h-14 rounded-full bg-amber-500/20 items-center justify-center active:opacity-70"
+            >
+              <Text className="text-amber-300 font-semibold text-base">OK, Got it</Text>
+            </Pressable>
           </View>
         </View>
       </Modal>

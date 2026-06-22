@@ -4,7 +4,7 @@ import { Pressable, Text, View } from "react-native";
 import { Club } from "@/shared/models/club.model";
 import { formatDate } from "@/shared/utils/date.utils";
 
-import { STATUS_STYLES } from "../const/status-styles";
+import { STATUS_STYLES } from "@/shared/const/status-styles";
 
 type Props = {
   club: Club;
