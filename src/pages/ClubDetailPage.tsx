@@ -1,4 +1,4 @@
-import { ClubDetail } from "@/modules/club-detail";
+import { ClubDetailContainer } from "@/modules/club-detail";
 
 type Props = {
   id: string;
@@ -6,5 +6,5 @@ type Props = {
 };
 
 export function ClubDetailPage({ id, onBack }: Props) {
-  return <ClubDetail id={id} onBack={onBack} />;
+  return <ClubDetailContainer id={id} onBack={onBack} />;
 }

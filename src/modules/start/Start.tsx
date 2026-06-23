@@ -1,4 +1,3 @@
-import { useFonts, Pacifico_400Regular } from "@expo-google-fonts/pacifico";
 import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, Text, View, ViewStyle } from "react-native";
 import Animated, { AnimatedStyle } from "react-native-reanimated";
@@ -12,10 +11,10 @@ export type StartProps = {
   titleStyle: AnimatedStyle<ViewStyle>;
   descStyle: AnimatedStyle<ViewStyle>;
   buttonsStyle: AnimatedStyle<ViewStyle>;
+  fontsLoaded: boolean;
 };
 
-export function Start({ onGetStarted, onSignIn, logoStyle, titleStyle, descStyle, buttonsStyle }: StartProps) {
-  const [fontsLoaded] = useFonts({ Pacifico_400Regular });
+export function Start({ onGetStarted, onSignIn, logoStyle, titleStyle, descStyle, buttonsStyle, fontsLoaded }: StartProps) {
 
   return (
     <LinearGradient

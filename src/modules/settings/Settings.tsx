@@ -4,9 +4,9 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { Application } from "@/shared/const/applications.store";
 import { User } from "@/shared/models/user.model";
 
-import { ApplicantRow } from "./components/ApplicantRow";
-import { Row } from "./components/Row";
-import { STATUS_STYLE } from "./const/status-style.const";
+import { AccountInfo } from "./components/AccountInfo";
+import { ApplicantsList } from "./components/ApplicantsList";
+import { UserApplicationsList } from "./components/UserApplicationsList";
 
 export type SettingsProps = {
   user: User | null;
@@ -52,62 +52,22 @@ export function Settings({
         </View>
       </View>
 
-      <View className="mx-4 mb-4 bg-white/15 rounded-3xl px-4">
-        <Text className="text-xs font-semibold text-white/60 uppercase tracking-widest pt-4 pb-1">
-          Account
-        </Text>
-        <Row icon="person-outline" label="Full Name" value={user?.name} />
-        <Row icon="mail-outline" label="Email" value={user?.email} />
-        <Row icon="calendar-outline" label="Date of Birth" value={user?.dateOfBirth} />
-      </View>
+      <AccountInfo user={user} />
 
       {userApplications.length > 0 && (
-        <View className="mx-4 mb-4 bg-white/15 rounded-3xl px-4">
-          <View className="flex-row items-center justify-between pt-4 pb-1">
-            <Text className="text-xs font-semibold text-white/60 uppercase tracking-widest">
-              My Applications
-            </Text>
-            <Pressable onPress={onRefreshApplications} className="active:opacity-60 p-1">
-              <Ionicons name="refresh-outline" size={16} color="rgba(255,255,255,0.6)" />
-            </Pressable>
-          </View>
-          {userApplications.map((app) => {
-            const s = STATUS_STYLE[app.status];
-            return (
-              <View
-                key={app.clubId}
-                className="flex-row items-center py-3 border-b border-white/10"
-              >
-                <Text className="text-white text-sm font-medium flex-1">{app.clubName}</Text>
-                <View className={`px-2.5 py-1 rounded-full ${s.bg}`}>
-                  <Text className={`text-xs font-semibold ${s.text}`}>{s.label}</Text>
-                </View>
-              </View>
-            );
-          })}
-        </View>
+        <UserApplicationsList
+          userApplications={userApplications}
+          onRefresh={onRefreshApplications}
+        />
       )}
 
       {isHost && (
-        <View className="mx-4 mb-4 bg-white/15 rounded-3xl px-4">
-          <Text className="text-xs font-semibold text-white/60 uppercase tracking-widest pt-4 pb-1">
-            {hostedClubName ? `Applications — ${hostedClubName}` : "Applications"}
-          </Text>
-          {applicants.length === 0 ? (
-            <View className="py-4">
-              <Text className="text-white/40 text-sm text-center">No pending applications</Text>
-            </View>
-          ) : (
-            applicants.map((a) => (
-              <ApplicantRow
-                key={a.userId}
-                name={a.userName}
-                onAccept={() => onAccept(a.userId)}
-                onReject={() => onReject(a.userId)}
-              />
-            ))
-          )}
-        </View>
+        <ApplicantsList
+          applicants={applicants}
+          hostedClubName={hostedClubName}
+          onAccept={onAccept}
+          onReject={onReject}
+        />
       )}
 
       <View className="mx-4 mb-8 gap-3">
