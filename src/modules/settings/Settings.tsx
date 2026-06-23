@@ -1,12 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, ScrollView, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Application, ApplicationStatus } from "@/shared/const/applications.store";
+import { Application } from "@/shared/const/applications.store";
 import { User } from "@/shared/models/user.model";
 
 import { ApplicantRow } from "./components/ApplicantRow";
 import { Row } from "./components/Row";
+import { STATUS_STYLE } from "./const/status-style.const";
 
 export type SettingsProps = {
   user: User | null;
@@ -20,12 +20,7 @@ export type SettingsProps = {
   onRefreshApplications: () => void;
   onSignOut: () => void;
   onDeleteAccount: () => void;
-};
-
-const STATUS_STYLE: Record<ApplicationStatus, { label: string; bg: string; text: string }> = {
-  waiting:  { label: "Waiting",  bg: "bg-yellow-500/20", text: "text-yellow-300" },
-  approved: { label: "Approved", bg: "bg-emerald-500/20", text: "text-emerald-300" },
-  rejected: { label: "Rejected", bg: "bg-red-500/20",    text: "text-red-300" },
+  top: number;
 };
 
 export function Settings({
@@ -40,8 +35,8 @@ export function Settings({
   onRefreshApplications,
   onSignOut,
   onDeleteAccount,
+  top,
 }: SettingsProps) {
-  const { top } = useSafeAreaInsets();
 
   return (
     <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>

@@ -1,19 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { GradientButton } from "@/shared/components";
+import { CreateClubFields } from "./model/create-club.model";
 
-export type CreateClubFields = {
-  name: string;
-  description: string;
-  location: string;
-  startDate: string;
-  maxMembers: string;
-};
+import { DateTimePickerField } from "./components/DateTimePickerField";
+import { Field } from "./components/Field";
 
 type Props = {
   fields: CreateClubFields;
@@ -21,98 +14,11 @@ type Props = {
   onChange: (key: keyof CreateClubFields, value: string) => void;
   onSubmit: () => void;
   onBack: () => void;
+  top: number;
+  bottom: number;
 };
 
-function Field({
-  label,
-  value,
-  onChange,
-  placeholder,
-  multiline,
-  keyboardType,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  multiline?: boolean;
-  keyboardType?: "default" | "numeric";
-}) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text className="text-white/70 text-xs font-semibold uppercase tracking-widest">{label}</Text>
-      <View
-        className="bg-white/15 rounded-2xl px-4"
-        style={{ minHeight: multiline ? 100 : 52, justifyContent: "center" }}
-      >
-        <TextInput
-          value={value}
-          onChangeText={onChange}
-          placeholder={placeholder}
-          placeholderTextColor="rgba(255,255,255,0.35)"
-          multiline={multiline}
-          keyboardType={keyboardType}
-          className="text-white text-sm"
-          style={{ paddingVertical: 12, textAlignVertical: multiline ? "top" : "center" }}
-        />
-      </View>
-    </View>
-  );
-}
-
-function DateTimePickerField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  const [visible, setVisible] = useState(false);
-
-  const dateValue = value ? new Date(value) : undefined;
-  const displayText = dateValue
-    ? dateValue.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) +
-      "  " +
-      dateValue.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
-    : null;
-
-  const handleConfirm = (date: Date) => {
-    setVisible(false);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    onChange(
-      `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
-    );
-  };
-
-  return (
-    <View style={{ gap: 6 }}>
-      <Text className="text-white/70 text-xs font-semibold uppercase tracking-widest">{label}</Text>
-      <Pressable
-        onPress={() => setVisible(true)}
-        className="bg-white/15 rounded-2xl px-4 active:opacity-70"
-        style={{ height: 52, flexDirection: "row", alignItems: "center", gap: 10 }}
-      >
-        <Ionicons name="calendar-outline" size={18} color="rgba(255,255,255,0.5)" />
-        <Text style={{ color: displayText ? "#fff" : "rgba(255,255,255,0.35)", fontSize: 14 }}>
-          {displayText ?? "Select date & time"}
-        </Text>
-      </Pressable>
-      <DateTimePickerModal
-        isVisible={visible}
-        mode="datetime"
-        onConfirm={handleConfirm}
-        onCancel={() => setVisible(false)}
-        minimumDate={new Date()}
-        date={dateValue ?? new Date()}
-      />
-    </View>
-  );
-}
-
-export function CreateClub({ fields, isLoading, onChange, onSubmit, onBack }: Props) {
-  const { top, bottom } = useSafeAreaInsets();
+export function CreateClub({ fields, isLoading, onChange, onSubmit, onBack, top, bottom }: Props) {
 
   return (
     <LinearGradient

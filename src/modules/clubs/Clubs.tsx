@@ -1,5 +1,4 @@
 import { FlatList, RefreshControl, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { GradientButton } from "@/shared/components";
 import { Club } from "@/shared/models/club.model";
@@ -15,11 +14,11 @@ export type ClubsProps = {
   onCreateClub: () => void;
   refreshing: boolean;
   onRefresh: () => void;
+  top: number;
+  bottom: number;
 };
 
-export function Clubs({ clubs, searchQuery, onSearchChange, onPressClub, onCreateClub, refreshing, onRefresh }: ClubsProps) {
-  const { top, bottom } = useSafeAreaInsets();
-
+export function Clubs({ clubs, searchQuery, onSearchChange, onPressClub, onCreateClub, refreshing, onRefresh, top, bottom }: ClubsProps) {
   return (
     <View style={{ flex: 1 }}>
       <FlatList

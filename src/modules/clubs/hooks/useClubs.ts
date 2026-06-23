@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { Club } from "@/shared/models/club.model";
 
-import { clubsStore } from "../clubs.store";
+import { clubsStore } from "@/state/clubs.state";
 
 export function useClubs(): Club[] {
   const [clubs, setClubs] = useState(() => clubsStore.getAll());

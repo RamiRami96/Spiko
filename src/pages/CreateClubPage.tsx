@@ -1,7 +1,8 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { clubsStore } from "@/modules/clubs/clubs.store";
+import { clubsStore } from "@/state/clubs.state";
 import { CreateClub, CreateClubFields } from "@/modules/create-club";
 import { useCurrentUser } from "@/modules/settings/hooks/useCurrentUser";
 
@@ -15,6 +16,7 @@ const EMPTY: CreateClubFields = {
 
 export function CreateClubPage() {
   const router = useRouter();
+  const { top, bottom } = useSafeAreaInsets();
   const user = useCurrentUser();
   const [fields, setFields] = useState<CreateClubFields>(EMPTY);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,6 +60,8 @@ export function CreateClubPage() {
       onChange={handleChange}
       onSubmit={handleSubmit}
       onBack={() => router.back()}
+      top={top}
+      bottom={bottom}
     />
   );
 }

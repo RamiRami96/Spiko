@@ -1,8 +1,9 @@
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { clubsStore } from "@/modules/clubs/clubs.store";
+import { clubsStore } from "@/state/clubs.state";
 import { ConfirmModal } from "@/shared/components";
 import { authService } from "@/shared/services";
 import { Application, applicationsStore } from "@/shared/const/applications.store";
@@ -11,6 +12,7 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { Settings } from "../Settings";
 
 export function SettingsForm() {
+  const { top } = useSafeAreaInsets();
   const user = useCurrentUser();
   const [isLoading, setIsLoading] = useState(false);
   const [deleteAccountVisible, setDeleteAccountVisible] = useState(false);
@@ -90,6 +92,7 @@ export function SettingsForm() {
         onRefreshApplications={handleRefreshApplications}
         onSignOut={handleSignOut}
         onDeleteAccount={handleDeleteAccount}
+        top={top}
       />
       <ConfirmModal
         visible={deleteAccountVisible}

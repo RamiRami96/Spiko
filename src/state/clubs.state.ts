@@ -1,6 +1,6 @@
 import { Club } from "@/shared/models/club.model";
 
-import { MOCK_CLUBS } from "./const/mock-clubs";
+import { MOCK_CLUBS } from "@/modules/clubs/const/mock-clubs";
 
 let clubs: Club[] = [...MOCK_CLUBS];
 const listeners = new Set<() => void>();
@@ -28,6 +28,6 @@ export const clubsStore = {
   },
   subscribe: (listener: () => void) => {
     listeners.add(listener);
-    return () => listeners.delete(listener);
+    return () => { listeners.delete(listener); };
   },
 };

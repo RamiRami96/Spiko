@@ -1,84 +1,57 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import type { EdgeInsets } from "react-native-safe-area-context";
 
-import { clubsStore } from "@/modules/clubs/clubs.store";
-import { useCurrentUser } from "@/modules/settings/hooks/useCurrentUser";
-import { applicationsStore } from "@/shared/const/applications.store";
-import { ConfirmModal, GradientButton } from "@/shared/components";
+import { GradientButton } from "@/shared/components";
 import { formatDate, formatTime } from "@/shared/utils/date.utils";
+import type { Club } from "@/shared/models/club.model";
 
-import { STATUS_STYLES } from "@/shared/const/status-styles";
+import { AlreadyAppliedModal } from "./components/AlreadyAppliedModal";
+import { ApplySuccessModal } from "./components/ApplySuccessModal";
+import { DeleteClubModal } from "./components/DeleteClubModal";
 
 type Props = {
-  id: string;
+  club: Club;
+  insets: EdgeInsets;
+  isHost: boolean;
+  status: { bg: string; text: string; label: string };
+  canApply: boolean;
+  membersRatio: number;
+  spotsLeft: number;
+  applyLabel: string;
+  successVisible: boolean;
+  warnVisible: boolean;
+  deleteVisible: boolean;
   onBack: () => void;
+  onApplyPress: () => void;
+  onConfirm: () => void;
+  onDelete: () => void;
+  onWarnClose: () => void;
+  onDeleteOpen: () => void;
+  onDeleteClose: () => void;
 };
 
-
-export function ClubDetail({ id, onBack }: Props) {
-  const router = useRouter();
-  const currentUser = useCurrentUser();
-  const { top, bottom } = useSafeAreaInsets();
-  const [successVisible, setSuccessVisible] = useState(false);
-  const [warnVisible, setWarnVisible] = useState(false);
-  const [deleteVisible, setDeleteVisible] = useState(false);
-
-  const club = clubsStore.getAll().find((c) => c.id === id);
-  if (!club) return null;
-
-  const isHost = currentUser?.id === club.host.id;
-  const alreadyApplied = currentUser
-    ? applicationsStore.hasApplied(currentUser.id, club.id)
-    : false;
-  const status = STATUS_STYLES[club.status];
-  const canApply = !club.isRegistered && club.status === "active";
-  const membersRatio = club.currentMemberCount / club.maxMembers;
-  const spotsLeft = club.maxMembers - club.currentMemberCount;
-
-  const APPLY_LABELS: Record<string, string> = {
-    full: "Club is Full",
-    cancelled: "Cancelled",
-  };
-  const applyLabel = club.isRegistered
-    ? "Already Registered"
-    : (APPLY_LABELS[club.status] ?? "Apply to Join");
-
-  const handleApply = () => {
-    if (currentUser) {
-      applicationsStore.apply({
-        userId: currentUser.id,
-        userName: currentUser.name,
-        clubId: club.id,
-        clubName: club.name,
-      });
-    }
-    clubsStore.incrementMemberCount(club.id);
-    router.replace("/(main)/clubs");
-  };
-
-  const handleApplyPress = () => {
-    if (alreadyApplied) {
-      setWarnVisible(true);
-    } else {
-      setSuccessVisible(true);
-    }
-  };
-
-  const handleConfirm = () => {
-    setSuccessVisible(false);
-    handleApply();
-  };
-
-  const handleDelete = () => {
-    setDeleteVisible(false);
-    clubsStore.remove(club.id);
-    router.replace("/(main)/clubs");
-  };
-
+export function ClubDetail({
+  club,
+  insets,
+  isHost,
+  status,
+  canApply,
+  membersRatio,
+  spotsLeft,
+  applyLabel,
+  successVisible,
+  warnVisible,
+  deleteVisible,
+  onBack,
+  onApplyPress,
+  onConfirm,
+  onDelete,
+  onWarnClose,
+  onDeleteOpen,
+  onDeleteClose,
+}: Props) {
   return (
     <LinearGradient
       colors={["#06B6D4", "#4F46E5"]}
@@ -89,8 +62,8 @@ export function ClubDetail({ id, onBack }: Props) {
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{
-          paddingTop: top + 16,
-          paddingBottom: bottom + 24,
+          paddingTop: insets.top + 16,
+          paddingBottom: insets.bottom + 24,
           paddingHorizontal: 16,
           gap: 16,
         }}
@@ -176,7 +149,7 @@ export function ClubDetail({ id, onBack }: Props) {
         {!isHost && (
           <View style={{ paddingTop: 4 }}>
             {canApply ? (
-              <GradientButton label={applyLabel} onPress={handleApplyPress} />
+              <GradientButton label={applyLabel} onPress={onApplyPress} />
             ) : (
               <View className="h-14 rounded-full bg-white/15 items-center justify-center">
                 <Text className="text-white/50 font-semibold text-base">{applyLabel}</Text>
@@ -188,7 +161,7 @@ export function ClubDetail({ id, onBack }: Props) {
         {isHost && (
           <View style={{ paddingTop: 4 }}>
             <Pressable
-              onPress={() => setDeleteVisible(true)}
+              onPress={onDeleteOpen}
               className="h-14 rounded-full bg-red-500/20 flex-row items-center justify-center gap-2 active:opacity-70"
             >
               <Ionicons name="trash-outline" size={18} color="#F87171" />
@@ -198,76 +171,24 @@ export function ClubDetail({ id, onBack }: Props) {
         )}
       </ScrollView>
 
-      <Modal visible={successVisible} transparent animationType="fade">
-        <View
-          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", alignItems: "center", justifyContent: "center", padding: 24 }}
-        >
-          <View className="bg-black/60 rounded-3xl p-6 w-full gap-5" style={{ borderWidth: 1, borderColor: "rgba(255,255,255,0.12)" }}>
-            <View className="items-center gap-4">
-              <View className="w-16 h-16 rounded-full bg-white/10 items-center justify-center">
-                <Ionicons name="checkmark-circle" size={40} color="#06B6D4" />
-              </View>
-              <View className="items-center gap-1.5">
-                <Text className="text-white font-bold text-xl text-center">
-                  Application Sent!
-                </Text>
-                <Text className="text-white/60 text-sm text-center leading-5">
-                  You have applied to join{"\n"}
-                  <Text className="text-white font-semibold">{club.name}</Text>
-                  {"\n"}The host will review your request.
-                </Text>
-              </View>
-            </View>
-            <GradientButton label="Got it" onPress={handleConfirm} />
-          </View>
-        </View>
-      </Modal>
-
-      <ConfirmModal
-        visible={deleteVisible}
-        title="Delete Club?"
-        description={
-          <Text className="text-white/60 text-sm text-center leading-5">
-            This will permanently remove{"\n"}
-            <Text className="text-white font-semibold">{club.name}</Text>
-            {"\n"}and cannot be undone.
-          </Text>
-        }
-        confirmLabel="Yes, Delete"
-        icon={{ name: "trash-outline", color: "#F87171", bgClass: "bg-red-500/20" }}
-        onConfirm={handleDelete}
-        onCancel={() => setDeleteVisible(false)}
+      <ApplySuccessModal
+        visible={successVisible}
+        clubName={club.name}
+        onConfirm={onConfirm}
       />
 
-      <Modal visible={warnVisible} transparent animationType="fade">
-        <View
-          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", alignItems: "center", justifyContent: "center", padding: 24 }}
-        >
-          <View className="bg-black/60 rounded-3xl p-6 w-full gap-5" style={{ borderWidth: 1, borderColor: "rgba(255,255,255,0.12)" }}>
-            <View className="items-center gap-4">
-              <View className="w-16 h-16 rounded-full bg-amber-500/20 items-center justify-center">
-                <Ionicons name="warning" size={40} color="#F59E0B" />
-              </View>
-              <View className="items-center gap-1.5">
-                <Text className="text-white font-bold text-xl text-center">
-                  Already Applied
-                </Text>
-                <Text className="text-white/60 text-sm text-center leading-5">
-                  You have already submitted an application to{"\n"}
-                  <Text className="text-white font-semibold">{club.name}</Text>
-                  {"\n"}Please wait for the host to respond.
-                </Text>
-              </View>
-            </View>
-            <Pressable
-              onPress={() => setWarnVisible(false)}
-              className="h-14 rounded-full bg-amber-500/20 items-center justify-center active:opacity-70"
-            >
-              <Text className="text-amber-300 font-semibold text-base">OK, Got it</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <DeleteClubModal
+        visible={deleteVisible}
+        clubName={club.name}
+        onConfirm={onDelete}
+        onCancel={onDeleteClose}
+      />
+
+      <AlreadyAppliedModal
+        visible={warnVisible}
+        clubName={club.name}
+        onClose={onWarnClose}
+      />
     </LinearGradient>
   );
 }
