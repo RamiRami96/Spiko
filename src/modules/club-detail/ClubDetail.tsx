@@ -5,11 +5,11 @@ import { useState } from "react";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { clubRegistration } from "@/modules/club-detail/const/club-registration.const";
-import { MOCK_CLUBS } from "@/modules/clubs/const/mock-clubs";
+import { clubsStore } from "@/modules/clubs/clubs.store";
 import { useCurrentUser } from "@/modules/settings/hooks/useCurrentUser";
-import { GradientButton } from "@/shared/components";
-import { formatDate } from "@/shared/utils/date.utils";
+import { applicationsStore } from "@/shared/const/applications.store";
+import { ConfirmModal, GradientButton } from "@/shared/components";
+import { formatDate, formatTime } from "@/shared/utils/date.utils";
 
 import { STATUS_STYLES } from "@/shared/const/status-styles";
 
@@ -18,43 +18,47 @@ type Props = {
   onBack: () => void;
 };
 
-function formatTime(dateStr: string) {
-  return new Date(dateStr).toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-}
 
 export function ClubDetail({ id, onBack }: Props) {
   const router = useRouter();
   const currentUser = useCurrentUser();
-  const club = MOCK_CLUBS.find((c) => c.id === id);
-
-  if (!club) return null;
-
-  const isHost = currentUser?.id === club.host.id;
-  const alreadyApplied = clubRegistration.hasApplied(club.id);
-
-  const handleApply = () => {
-    clubRegistration.apply(club.id);
-    router.replace("/(main)/clubs");
-  };
   const { top, bottom } = useSafeAreaInsets();
   const [successVisible, setSuccessVisible] = useState(false);
   const [warnVisible, setWarnVisible] = useState(false);
+  const [deleteVisible, setDeleteVisible] = useState(false);
+
+  const club = clubsStore.getAll().find((c) => c.id === id);
+  if (!club) return null;
+
+  const isHost = currentUser?.id === club.host.id;
+  const alreadyApplied = currentUser
+    ? applicationsStore.hasApplied(currentUser.id, club.id)
+    : false;
   const status = STATUS_STYLES[club.status];
   const canApply = !club.isRegistered && club.status === "active";
   const membersRatio = club.currentMemberCount / club.maxMembers;
   const spotsLeft = club.maxMembers - club.currentMemberCount;
 
+  const APPLY_LABELS: Record<string, string> = {
+    full: "Club is Full",
+    cancelled: "Cancelled",
+  };
   const applyLabel = club.isRegistered
     ? "Already Registered"
-    : club.status === "full"
-    ? "Club is Full"
-    : club.status === "cancelled"
-    ? "Cancelled"
-    : "Apply to Join";
+    : (APPLY_LABELS[club.status] ?? "Apply to Join");
+
+  const handleApply = () => {
+    if (currentUser) {
+      applicationsStore.apply({
+        userId: currentUser.id,
+        userName: currentUser.name,
+        clubId: club.id,
+        clubName: club.name,
+      });
+    }
+    clubsStore.incrementMemberCount(club.id);
+    router.replace("/(main)/clubs");
+  };
 
   const handleApplyPress = () => {
     if (alreadyApplied) {
@@ -67,6 +71,12 @@ export function ClubDetail({ id, onBack }: Props) {
   const handleConfirm = () => {
     setSuccessVisible(false);
     handleApply();
+  };
+
+  const handleDelete = () => {
+    setDeleteVisible(false);
+    clubsStore.remove(club.id);
+    router.replace("/(main)/clubs");
   };
 
   return (
@@ -174,9 +184,20 @@ export function ClubDetail({ id, onBack }: Props) {
             )}
           </View>
         )}
+
+        {isHost && (
+          <View style={{ paddingTop: 4 }}>
+            <Pressable
+              onPress={() => setDeleteVisible(true)}
+              className="h-14 rounded-full bg-red-500/20 flex-row items-center justify-center gap-2 active:opacity-70"
+            >
+              <Ionicons name="trash-outline" size={18} color="#F87171" />
+              <Text className="text-red-400 font-semibold text-base">Delete Club</Text>
+            </Pressable>
+          </View>
+        )}
       </ScrollView>
 
-      {/* Success modal */}
       <Modal visible={successVisible} transparent animationType="fade">
         <View
           style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", alignItems: "center", justifyContent: "center", padding: 24 }}
@@ -202,7 +223,22 @@ export function ClubDetail({ id, onBack }: Props) {
         </View>
       </Modal>
 
-      {/* Warning modal */}
+      <ConfirmModal
+        visible={deleteVisible}
+        title="Delete Club?"
+        description={
+          <Text className="text-white/60 text-sm text-center leading-5">
+            This will permanently remove{"\n"}
+            <Text className="text-white font-semibold">{club.name}</Text>
+            {"\n"}and cannot be undone.
+          </Text>
+        }
+        confirmLabel="Yes, Delete"
+        icon={{ name: "trash-outline", color: "#F87171", bgClass: "bg-red-500/20" }}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteVisible(false)}
+      />
+
       <Modal visible={warnVisible} transparent animationType="fade">
         <View
           style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", alignItems: "center", justifyContent: "center", padding: 24 }}

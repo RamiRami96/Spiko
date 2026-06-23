@@ -1,32 +1,64 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Text } from "react-native";
 
-import { MOCK_CLUBS } from "@/modules/clubs/const/mock-clubs";
+import { clubsStore } from "@/modules/clubs/clubs.store";
+import { ConfirmModal } from "@/shared/components";
 import { authService } from "@/shared/services";
+import { Application, applicationsStore } from "@/shared/const/applications.store";
 
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { Settings } from "../Settings";
-import { Applicant, mockApplicants } from "../const/mock-applicants.const";
 
 export function SettingsForm() {
   const user = useCurrentUser();
   const [isLoading, setIsLoading] = useState(false);
+  const [deleteAccountVisible, setDeleteAccountVisible] = useState(false);
+  const [applicants, setApplicants] = useState<Application[]>([]);
+  const [userApplications, setUserApplications] = useState<Application[]>([]);
 
-  const hostedClub = MOCK_CLUBS.find((c) => c.host.id === user?.id);
-  const [applicants, setApplicants] = useState<Applicant[]>(() =>
-    hostedClub ? mockApplicants.getByClubId(hostedClub.id) : []
+  const hostedClub = useMemo(
+    () => clubsStore.getAll().find((c) => c.host.id === user?.id),
+    [user]
   );
+
+  useEffect(() => {
+    setApplicants(
+      hostedClub
+        ? applicationsStore.getByClubId(hostedClub.id).filter((a) => a.status === "waiting")
+        : []
+    );
+  }, [hostedClub]);
+
+  useEffect(() => {
+    if (user) setUserApplications(applicationsStore.getByUserId(user.id));
+  }, [user]);
+
+  useEffect(() => {
+    const unsub = applicationsStore.subscribe(() => {
+      if (hostedClub) {
+        setApplicants(
+          applicationsStore.getByClubId(hostedClub.id).filter((a) => a.status === "waiting")
+        );
+      }
+      if (user) setUserApplications(applicationsStore.getByUserId(user.id));
+    });
+    return () => { unsub(); };
+  }, [hostedClub, user]);
 
   const handleAccept = (userId: string) => {
     if (!hostedClub) return;
-    mockApplicants.accept(hostedClub.id, userId);
-    setApplicants((prev) => prev.filter((a) => a.id !== userId));
+    applicationsStore.accept(userId, hostedClub.id);
   };
 
   const handleReject = (userId: string) => {
     if (!hostedClub) return;
-    mockApplicants.reject(hostedClub.id, userId);
-    setApplicants((prev) => prev.filter((a) => a.id !== userId));
+    applicationsStore.reject(userId, hostedClub.id);
+  };
+
+  const handleRefreshApplications = async () => {
+    await new Promise((r) => setTimeout(r, 500));
+    if (user) setUserApplications(applicationsStore.getByUserId(user.id));
   };
 
   const handleSignOut = async () => {
@@ -35,23 +67,43 @@ export function SettingsForm() {
     router.replace("/");
   };
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = () => setDeleteAccountVisible(true);
+
+  const confirmDeleteAccount = async () => {
+    setDeleteAccountVisible(false);
     setIsLoading(true);
     await authService.deleteAccount();
     router.replace("/");
   };
 
   return (
-    <Settings
-      user={user}
-      isLoading={isLoading}
-      isHost={!!hostedClub}
-      hostedClubName={hostedClub?.name}
-      applicants={applicants}
-      onAccept={handleAccept}
-      onReject={handleReject}
-      onSignOut={handleSignOut}
-      onDeleteAccount={handleDeleteAccount}
-    />
+    <>
+      <Settings
+        user={user}
+        isLoading={isLoading}
+        isHost={!!hostedClub}
+        hostedClubName={hostedClub?.name}
+        applicants={applicants}
+        userApplications={userApplications}
+        onAccept={handleAccept}
+        onReject={handleReject}
+        onRefreshApplications={handleRefreshApplications}
+        onSignOut={handleSignOut}
+        onDeleteAccount={handleDeleteAccount}
+      />
+      <ConfirmModal
+        visible={deleteAccountVisible}
+        title="Delete Account?"
+        description={
+          <Text className="text-white/60 text-sm text-center leading-5">
+            This will permanently delete your account{"\n"}and all associated data.{"\n"}This cannot be undone.
+          </Text>
+        }
+        confirmLabel="Yes, Delete"
+        icon={{ name: "person-remove-outline", color: "#F87171", bgClass: "bg-red-500/20" }}
+        onConfirm={confirmDeleteAccount}
+        onCancel={() => setDeleteAccountVisible(false)}
+      />
+    </>
   );
 }

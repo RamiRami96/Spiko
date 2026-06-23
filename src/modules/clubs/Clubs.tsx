@@ -1,6 +1,7 @@
-import { FlatList, Text, View } from "react-native";
+import { FlatList, RefreshControl, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { GradientButton } from "@/shared/components";
 import { Club } from "@/shared/models/club.model";
 
 import { ClubCard } from "./components/ClubCard";
@@ -11,10 +12,13 @@ export type ClubsProps = {
   searchQuery: string;
   onSearchChange: (text: string) => void;
   onPressClub: (id: string) => void;
+  onCreateClub: () => void;
+  refreshing: boolean;
+  onRefresh: () => void;
 };
 
-export function Clubs({ clubs, searchQuery, onSearchChange, onPressClub }: ClubsProps) {
-  const { top } = useSafeAreaInsets();
+export function Clubs({ clubs, searchQuery, onSearchChange, onPressClub, onCreateClub, refreshing, onRefresh }: ClubsProps) {
+  const { top, bottom } = useSafeAreaInsets();
 
   return (
     <View style={{ flex: 1 }}>
@@ -33,9 +37,28 @@ export function Clubs({ clubs, searchQuery, onSearchChange, onPressClub }: Clubs
             <Text className="text-gray-300 text-sm">Try a different search</Text>
           </View>
         }
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: top + 16, paddingBottom: 16, gap: 12 }}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: top + 16,
+          paddingBottom: bottom + 88,
+          gap: 12,
+        }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
+        }
       />
+
+      <View
+        style={{
+          position: "absolute",
+          bottom: bottom,
+          left: 16,
+          right: 16,
+        }}
+      >
+        <GradientButton label="Create Club" onPress={onCreateClub} />
+      </View>
     </View>
   );
 }

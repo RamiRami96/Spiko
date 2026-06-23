@@ -1,6 +1,9 @@
+import { useFonts, Pacifico_400Regular } from "@expo-google-fonts/pacifico";
 import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, Text, View, ViewStyle } from "react-native";
 import Animated, { AnimatedStyle } from "react-native-reanimated";
+
+import { FloatingLetters } from "./components/FloatingLetters";
 
 export type StartProps = {
   onGetStarted: () => void;
@@ -12,6 +15,8 @@ export type StartProps = {
 };
 
 export function Start({ onGetStarted, onSignIn, logoStyle, titleStyle, descStyle, buttonsStyle }: StartProps) {
+  const [fontsLoaded] = useFonts({ Pacifico_400Regular });
+
   return (
     <LinearGradient
       colors={["#06B6D4", "#4F46E5"]}
@@ -19,15 +24,22 @@ export function Start({ onGetStarted, onSignIn, logoStyle, titleStyle, descStyle
       end={{ x: 1, y: 1 }}
       style={{ flex: 1, alignItems: "center", justifyContent: "space-between", paddingHorizontal: 24, paddingTop: 80, paddingBottom: 48 }}
     >
+      <FloatingLetters />
       <View className="flex-1 items-center justify-center gap-8">
-        <Animated.View style={logoStyle}>
-          <View className="w-28 h-28 rounded-full bg-white/20 items-center justify-center">
-            <Text className="text-6xl">🎤</Text>
-          </View>
+        <Animated.View style={logoStyle} className="items-center">
+          <Text
+            style={{
+              fontFamily: fontsLoaded ? "Pacifico_400Regular" : undefined,
+              fontSize: 72,
+              color: "#fff",
+              letterSpacing: 1,
+            }}
+          >
+            Spiko
+          </Text>
         </Animated.View>
 
         <Animated.View style={titleStyle} className="items-center gap-2">
-          <Text className="text-white text-4xl font-bold">Welcome =)</Text>
           <Text className="text-white/80 text-base text-center">
             Hi there! We're here to help you{"\n"}find and join speaking clubs.
           </Text>

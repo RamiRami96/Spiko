@@ -1,7 +1,7 @@
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { Pressable, Text, View } from "react-native";
 
-import { GradientButton, Input, ScreenLayout } from "@/shared/components";
+import { DatePickerInput, GradientButton, Input, ScreenLayout } from "@/shared/components";
 
 import { SignUpFormData } from "./schemas/sign-up.schema";
 
@@ -84,13 +84,13 @@ export function SignUp({
           <Controller
             control={control}
             name="dateOfBirth"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                placeholder="Date of birth (YYYY-MM-DD)"
-                onChangeText={onChange}
-                onBlur={onBlur}
+            render={({ field: { onChange, value } }) => (
+              <DatePickerInput
+                placeholder="Date of birth"
+                onChange={onChange}
                 value={value}
                 error={errors.dateOfBirth?.message}
+                maximumDate={new Date()}
               />
             )}
           />
