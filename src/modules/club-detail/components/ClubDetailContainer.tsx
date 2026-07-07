@@ -1,9 +1,9 @@
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { clubsStore } from "@/state/clubs.state";
 import { useCurrentUser } from "@/modules/settings/hooks/useCurrentUser";
-import { applicationsStore } from "@/shared/const/applications.store";
+import { useApplicationsDispatch } from "@/state/applications/applications.context";
+import { useClubsDispatch, useClubsState } from "@/state/clubs/clubs.context";
 
 import { ClubDetail } from "../ClubDetail";
 import { useClubDetailModals } from "../hooks/useClubDetailModals";
@@ -20,9 +20,12 @@ export function ClubDetailContainer({ id, onBack }: Props) {
   const router = useRouter();
   const currentUser = useCurrentUser();
   const insets = useSafeAreaInsets();
+  const clubs = useClubsState();
+  const clubsDispatch = useClubsDispatch();
+  const applicationsDispatch = useApplicationsDispatch();
   const { successVisible, setSuccessVisible, warnVisible, setWarnVisible, deleteVisible, setDeleteVisible } = useClubDetailModals();
 
-  const club = clubsStore.getAll().find((c) => c.id === id);
+  const club = clubs.find((c) => c.id === id);
   if (!club) return null;
 
   const { isHost, alreadyApplied } = useClubUserRelation(club, currentUser);
@@ -31,14 +34,17 @@ export function ClubDetailContainer({ id, onBack }: Props) {
 
   const handleApply = () => {
     if (currentUser) {
-      applicationsStore.apply({
-        userId: currentUser.id,
-        userName: currentUser.name,
-        clubId: club.id,
-        clubName: club.name,
+      applicationsDispatch({
+        type: "APPLY",
+        entry: {
+          userId: currentUser.id,
+          userName: currentUser.name,
+          clubId: club.id,
+          clubName: club.name,
+        },
       });
     }
-    clubsStore.incrementMemberCount(club.id);
+    clubsDispatch({ type: "INCREMENT_MEMBER_COUNT", clubId: club.id });
     router.replace("/(main)/clubs");
   };
 
@@ -57,7 +63,7 @@ export function ClubDetailContainer({ id, onBack }: Props) {
 
   const handleDelete = () => {
     setDeleteVisible(false);
-    clubsStore.remove(club.id);
+    clubsDispatch({ type: "REMOVE", clubId: club.id });
     router.replace("/(main)/clubs");
   };
 

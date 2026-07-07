@@ -1,15 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-import { Club } from "@/shared/models/club.model";
+import { useClubsDispatch, useClubsState } from "@/state/clubs/clubs.context";
 
-import { clubsStore } from "@/state/clubs.state";
-
-export function useClubs(): Club[] {
-  const [clubs, setClubs] = useState(() => clubsStore.getAll());
+export function useClubs() {
+  const clubs = useClubsState();
+  const dispatch = useClubsDispatch();
 
   useEffect(() => {
-    clubsStore.purgeExpired();
-    return clubsStore.subscribe(() => setClubs(clubsStore.getAll()));
+    dispatch({ type: "PURGE_EXPIRED" });
   }, []);
 
   return clubs;

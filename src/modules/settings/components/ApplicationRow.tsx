@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-import { Application } from "@/shared/const/applications.store";
+import { Application } from "@/state/applications/applications.reducer";
 import { STATUS_STYLE } from "../const/status-style.const";
 
 type Props = {

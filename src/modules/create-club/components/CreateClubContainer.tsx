@@ -2,8 +2,8 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { clubsStore } from "@/state/clubs.state";
 import { useCurrentUser } from "@/modules/settings/hooks/useCurrentUser";
+import { useClubsDispatch } from "@/state/clubs/clubs.context";
 
 import { CreateClub } from "../CreateClub";
 import { EMPTY_CLUB_FIELDS } from "../const/create-club.const";
@@ -13,6 +13,7 @@ export function CreateClubContainer() {
   const router = useRouter();
   const { top, bottom } = useSafeAreaInsets();
   const user = useCurrentUser();
+  const dispatch = useClubsDispatch();
   const [fields, setFields] = useState<CreateClubFields>(EMPTY_CLUB_FIELDS);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,19 +30,22 @@ export function CreateClubContainer() {
       : new Date().toISOString();
     const endDate = new Date(new Date(startDate).getTime() + 2 * 60 * 60 * 1000).toISOString();
 
-    clubsStore.add({
-      id: `local-${Date.now()}`,
-      name: fields.name || "Untitled Club",
-      description: fields.description,
-      location: fields.location,
-      startDate,
-      endDate,
-      maxMembers: parseInt(fields.maxMembers, 10) || 20,
-      currentMemberCount: 0,
-      status: "active",
-      createdAt: new Date().toISOString(),
-      host: { id: user?.id ?? "me", name: user?.name ?? "You" },
-      isRegistered: false,
+    dispatch({
+      type: "ADD",
+      club: {
+        id: `local-${Date.now()}`,
+        name: fields.name || "Untitled Club",
+        description: fields.description,
+        location: fields.location,
+        startDate,
+        endDate,
+        maxMembers: parseInt(fields.maxMembers, 10) || 20,
+        currentMemberCount: 0,
+        status: "active",
+        createdAt: new Date().toISOString(),
+        host: { id: user?.id ?? "me", name: user?.name ?? "You" },
+        isRegistered: false,
+      },
     });
 
     setIsLoading(false);

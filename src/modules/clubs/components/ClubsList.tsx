@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import { Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { clubsStore } from "@/state/clubs.state";
 import { Clubs } from "../Clubs";
 import { useClubs } from "../hooks/useClubs";
 
@@ -34,7 +33,7 @@ export function ClubsList() {
   const handleCreateClub = () => router.push("/clubs/create");
 
   const handlePressClub = (id: string) => {
-    if (!clubsStore.getAll().find((c) => c.id === id)) {
+    if (!clubs.find((c) => c.id === id)) {
       Alert.alert("Club Not Found", "This club no longer exists or has been deleted.");
       return;
     }
