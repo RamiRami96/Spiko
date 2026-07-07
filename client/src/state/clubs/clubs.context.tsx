@@ -1,7 +1,7 @@
-import { createContext, Dispatch, ReactNode, useContext, useReducer } from "react";
+import { createContext, Dispatch, ReactNode, useContext, useEffect, useReducer } from "react";
 
 import { Club } from "@/shared/models/club.model";
-import { MOCK_CLUBS } from "@/modules/clubs/const/mock-clubs";
+import { clubsService } from "@/shared/services";
 
 import { ClubsAction, clubsReducer } from "./clubs.reducer";
 
@@ -9,7 +9,13 @@ const ClubsStateContext = createContext<Club[]>([]);
 const ClubsDispatchContext = createContext<Dispatch<ClubsAction>>(() => {});
 
 export function ClubsProvider({ children }: { children: ReactNode }) {
-  const [clubs, dispatch] = useReducer(clubsReducer, [...MOCK_CLUBS]);
+  const [clubs, dispatch] = useReducer(clubsReducer, []);
+
+  useEffect(() => {
+    clubsService.getAll().then((data) => {
+      dispatch({ type: "SET", clubs: data });
+    });
+  }, []);
 
   return (
     <ClubsDispatchContext.Provider value={dispatch}>

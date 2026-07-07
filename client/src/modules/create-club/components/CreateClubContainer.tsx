@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useCurrentUser } from "@/modules/settings/hooks/useCurrentUser";
+import { clubsService } from "@/shared/services";
 import { useClubsDispatch } from "@/state/clubs/clubs.context";
 
 import { CreateClub } from "../CreateClub";
@@ -12,7 +12,6 @@ import { CreateClubFields } from "../model/create-club.model";
 export function CreateClubContainer() {
   const router = useRouter();
   const { top, bottom } = useSafeAreaInsets();
-  const user = useCurrentUser();
   const dispatch = useClubsDispatch();
   const [fields, setFields] = useState<CreateClubFields>(EMPTY_CLUB_FIELDS);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,33 +22,21 @@ export function CreateClubContainer() {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-
-    const startDate = fields.startDate
-      ? new Date(fields.startDate).toISOString()
-      : new Date().toISOString();
-    const endDate = new Date(new Date(startDate).getTime() + 2 * 60 * 60 * 1000).toISOString();
-
-    dispatch({
-      type: "ADD",
-      club: {
-        id: `local-${Date.now()}`,
+    try {
+      const club = await clubsService.create({
         name: fields.name || "Untitled Club",
         description: fields.description,
         location: fields.location,
-        startDate,
-        endDate,
+        startDate: fields.startDate
+          ? new Date(fields.startDate).toISOString()
+          : new Date().toISOString(),
         maxMembers: parseInt(fields.maxMembers, 10) || 20,
-        currentMemberCount: 0,
-        status: "active",
-        createdAt: new Date().toISOString(),
-        host: { id: user?.id ?? "me", name: user?.name ?? "You" },
-        isRegistered: false,
-      },
-    });
-
-    setIsLoading(false);
-    router.replace("/(main)/clubs");
+      });
+      dispatch({ type: "ADD", club });
+      router.replace("/(main)/clubs");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

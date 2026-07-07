@@ -1,4 +1,4 @@
-export type ApplicationStatus = "waiting" | "approved" | "rejected";
+export type ApplicationStatus = "waiting" | "approved" | "rejected" | "cancelled";
 
 export type Application = {
   userId: string;

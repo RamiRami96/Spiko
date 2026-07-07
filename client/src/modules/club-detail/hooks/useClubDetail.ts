@@ -2,10 +2,10 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { clubsStore } from "@/state/clubs.state";
 import { useCurrentUser } from "@/modules/settings/hooks/useCurrentUser";
-import { applicationsStore } from "@/shared/const/applications.store";
+import { clubsService } from "@/shared/services";
 import { STATUS_STYLES } from "@/shared/const/status-styles";
+import { useClubsDispatch, useClubsState } from "@/state/clubs/clubs.context";
 
 const APPLY_LABELS: Record<string, string> = {
   full: "Club is Full",
@@ -16,40 +16,32 @@ export function useClubDetail(id: string, onBack: () => void) {
   const router = useRouter();
   const currentUser = useCurrentUser();
   const insets = useSafeAreaInsets();
+  const clubs = useClubsState();
+  const dispatch = useClubsDispatch();
   const [successVisible, setSuccessVisible] = useState(false);
   const [warnVisible, setWarnVisible] = useState(false);
   const [deleteVisible, setDeleteVisible] = useState(false);
 
-  const club = clubsStore.getAll().find((c) => c.id === id);
+  const club = clubs.find((c) => c.id === id);
 
   const isHost = currentUser?.id === club?.host.id;
-  const alreadyApplied = currentUser && club
-    ? applicationsStore.hasApplied(currentUser.id, club.id)
-    : false;
-  const status = club ? STATUS_STYLES[club.status] : undefined;
   const canApply = club ? !club.isRegistered && club.status === "active" : false;
+  const status = club ? STATUS_STYLES[club.status] : undefined;
   const membersRatio = club ? club.currentMemberCount / club.maxMembers : 0;
   const spotsLeft = club ? club.maxMembers - club.currentMemberCount : 0;
   const applyLabel = club?.isRegistered
     ? "Already Registered"
     : (APPLY_LABELS[club?.status ?? ""] ?? "Apply to Join");
 
-  const handleApply = () => {
+  const handleApply = async () => {
     if (!club) return;
-    if (currentUser) {
-      applicationsStore.apply({
-        userId: currentUser.id,
-        userName: currentUser.name,
-        clubId: club.id,
-        clubName: club.name,
-      });
-    }
-    clubsStore.incrementMemberCount(club.id);
+    await clubsService.apply(club.id);
+    dispatch({ type: "MARK_REGISTERED", clubId: club.id });
     router.replace("/(main)/clubs");
   };
 
   const handleApplyPress = () => {
-    if (alreadyApplied) {
+    if (club?.isRegistered) {
       setWarnVisible(true);
     } else {
       setSuccessVisible(true);
@@ -58,13 +50,14 @@ export function useClubDetail(id: string, onBack: () => void) {
 
   const handleConfirm = () => {
     setSuccessVisible(false);
-    handleApply();
+    void handleApply();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!club) return;
     setDeleteVisible(false);
-    clubsStore.remove(club.id);
+    await clubsService.remove(club.id);
+    dispatch({ type: "REMOVE", clubId: club.id });
     router.replace("/(main)/clubs");
   };
 
@@ -83,7 +76,7 @@ export function useClubDetail(id: string, onBack: () => void) {
     onBack,
     onApplyPress: handleApplyPress,
     onConfirm: handleConfirm,
-    onDelete: handleDelete,
+    onDelete: () => void handleDelete(),
     onWarnClose: () => setWarnVisible(false),
     onDeleteOpen: () => setDeleteVisible(true),
     onDeleteClose: () => setDeleteVisible(false),
