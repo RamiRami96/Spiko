@@ -1,91 +1,158 @@
-<p align="center">
-  <img src="./screen.jpeg" alt="Angama app screenshot" width="280" />
-</p>
+<div align="center">
 
-<h1 align="center">äñgämä</h1>
+<img src="./screen.jpeg" alt="Angama app screenshot" width="280" />
 
-<p align="center">
-  Find and join speaking clubs. Practice public speaking, host sessions, and connect with people who want to get better at talking out loud.
-</p>
+# 🗣️ äñgämä - Speaking Clubs Platform
 
-## About
+*Find and join speaking clubs. Practice public speaking, host sessions, and connect with people who want to get better at talking out loud.*
 
-Angama is a mobile app for discovering, joining, and hosting speaking clubs. Users can browse active clubs, apply to attend as a **speaker** or **listener**, and hosts can review and manage applicants for the clubs they create. The project is a full-stack monorepo: an Expo/React Native client and a NestJS API backed by PostgreSQL.
+[![Expo](https://img.shields.io/badge/Expo-54-000020?style=for-the-badge&logo=expo)](https://expo.dev/)
+[![React Native](https://img.shields.io/badge/React_Native-0.81-61DAFB?style=for-the-badge&logo=react)](https://reactnative.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?style=for-the-badge&logo=nestjs)](https://nestjs.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
+[![NativeWind](https://img.shields.io/badge/NativeWind-4.2-38B2AC?style=for-the-badge&logo=tailwind-css)](https://www.nativewind.dev/)
 
-## Features
+</div>
 
-- **Authentication** — sign up / sign in with cookie-based sessions, account deletion
-- **Browse clubs** — searchable list of active speaking clubs
-- **Create a club** — host a session with a name, description, location, date, and member cap
-- **Club details** — view host info, current members, and club status
-- **Apply to a club** — join as a `SPEAKER` or `LISTENER`; applications go through `PENDING → APPROVED / REJECTED / WAITLISTED / CANCELLED`
-- **Settings** — manage account info, review/approve applicants for hosted clubs, track your own applications, sign out
+> **🚧 Development Status**: This project is currently in active development. New features and improvements are being added regularly.
 
-## Tech Stack
+## ✨ Features
 
-**Client**
-- [Expo](https://expo.dev) / React Native (`expo-router` for file-based navigation)
-- TypeScript
-- [NativeWind](https://www.nativewind.dev) (Tailwind CSS for React Native)
-- [TanStack Query](https://tanstack.com/query) for server state
-- React Hook Form + Zod for form handling and validation
+### 🔐 **Secure Authentication**
+- Cookie-based session authentication
+- Account deletion support
+- Bearer-token compatibility shim for native clients
 
-**Server**
-- [NestJS](https://nestjs.com) (TypeScript)
-- [Prisma ORM](https://www.prisma.io) with PostgreSQL
-- `express-session` for cookie-based session auth (with a bearer-token compatibility shim for native clients)
-- bcrypt for password hashing
+### 🏛️ **Browse Speaking Clubs**
+- Searchable list of active clubs
+- View host info, current members, and club status
+- Real-time club discovery
 
-## Architecture
+### 🎤 **Create & Host Clubs**
+- Host a session with name, description, location, date, and member cap
+- Manage and review applicants for clubs you host
+
+### 📝 **Apply to Clubs**
+- Join as a `SPEAKER` or `LISTENER`
+- Applications flow through `PENDING → APPROVED / REJECTED / WAITLISTED / CANCELLED`
+
+### ⚙️ **Settings**
+- Manage account info
+- Review and approve applicants for hosted clubs
+- Track your own applications
+- Sign out
+
+## 🚀 Tech Stack
+
+| Technology | Purpose | Version |
+|------------|---------|---------|
+| **Expo / React Native** | Cross-platform mobile app (`expo-router` for navigation) | 54 / 0.81 |
+| **TypeScript** | Type-safe development | 5.9 |
+| **NativeWind** | Tailwind CSS for React Native | 4.2 |
+| **TanStack Query** | Server state management | 5.101 |
+| **React Hook Form + Zod** | Form handling and validation | - |
+| **NestJS** | Full-stack API framework | 11 |
+| **Prisma ORM** | Type-safe database access | 6.19 |
+| **PostgreSQL** | Primary database | - |
+| **express-session + bcrypt** | Session auth & password hashing | - |
+
+## 📁 Project Structure
 
 ```
 Angama/
-├── client/                 # Expo / React Native app
+├── client/                  # Expo / React Native app
 │   └── src/
-│       ├── app/             # expo-router routes (screens)
-│       ├── pages/           # Top-level page components
-│       ├── modules/         # Feature modules (sign-in, sign-up, clubs, club-detail,
-│       │                     create-club, settings, start), each with its own
-│       │                     components, hooks, and constants
-│       └── shared/          # Cross-feature models, API services, TanStack Query
-│                             hooks, and shared UI components
+│       ├── app/              # expo-router routes (screens)
+│       ├── pages/             # Top-level page components
+│       ├── modules/           # Feature modules (sign-in, sign-up, clubs,
+│       │                        club-detail, create-club, settings, start)
+│       └── shared/            # Cross-feature models, API services,
+│                                TanStack Query hooks, shared UI components
 │
 └── server/                  # NestJS API
-    ├── prisma/               # Prisma schema (User, Club, Registration)
+    ├── prisma/                # Prisma schema (User, Club, Registration)
     └── src/
         ├── api/
-        │   ├── auth/          # Sign up / sign in / sign out / session guard
-        │   ├── clubs/          # Club CRUD, registrations
-        │   └── users/          # User profile endpoints
-        ├── prisma/            # Prisma service/module
-        └── shared/            # Shared utils/types
+        │   ├── auth/            # Sign up / sign in / sign out / session guard
+        │   ├── clubs/           # Club CRUD, registrations
+        │   └── users/           # User profile endpoints
+        ├── prisma/               # Prisma service/module
+        └── shared/                # Shared utils/types
 ```
 
 **Data model** (Prisma): `User` hosts many `Club`s and creates many `Registration`s; a `Registration` links a `User` to a `Club` with a role (`SPEAKER` / `LISTENER`) and a status.
 
-## Getting Started
+## 🛠️ Installation & Setup
 
 ### Prerequisites
-- Node.js
+- Node.js 18+
 - A PostgreSQL database
 - [Expo Go](https://expo.dev/go) or an iOS/Android simulator
 
-### Server
-
+### 1. Clone the Repository
 ```bash
-cd server
-npm install
-# create a .env with DATABASE_URL, DIRECT_URL, SESSION_SECRET
-npx prisma migrate dev
-npm run start:dev
+git clone <repository-url>
+cd Angama
 ```
 
-### Client
-
+### 2. Install Dependencies
 ```bash
-cd client
+# Install server dependencies
+cd server
 npm install
+
+# Install client dependencies
+cd ../client
+npm install
+```
+
+### 3. Environment Setup
+Create a `.env` file in the `server/` directory:
+
+```env
+DATABASE_URL="postgresql://username:password@localhost:5432/angama"
+DIRECT_URL="postgresql://username:password@localhost:5432/angama"
+SESSION_SECRET="your-secret-key"
+```
+
+### 4. Database Setup
+```bash
+cd server
+npx prisma migrate dev
+```
+
+### 5. Run the Application
+```bash
+# Terminal 1: Start the NestJS API
+cd server
+npm run start:dev
+
+# Terminal 2: Start the Expo app
+cd client
 npx expo start
 ```
 
-Then open the app in a development build, simulator, or Expo Go.
+Open the app in a development build, simulator, or Expo Go.
+
+## 🎯 Usage
+
+### Creating an Account
+1. Sign up with your details
+2. Sign in using cookie-based sessions
+
+### Finding a Club
+1. Browse the searchable list of active speaking clubs
+2. Open a club to see host info, members, and status
+3. Apply as a `SPEAKER` or `LISTENER`
+
+### Hosting a Club
+1. Create a club with a name, description, location, date, and member cap
+2. Review incoming applications from the Settings screen
+3. Approve, reject, or waitlist applicants
+
+## 🎯 Future Plans
+
+### 📱 **Platform Growth**
+- Push notifications for club invites and application updates
+- In-app messaging between hosts and members
