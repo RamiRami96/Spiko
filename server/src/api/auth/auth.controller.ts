@@ -76,7 +76,7 @@ export class AuthController {
   }
 
   private signSession(req: Request): string {
-    const secret = process.env.SESSION_SECRET ?? 'spiko-secret';
+    const secret = process.env.SESSION_SECRET ?? 'angama-secret';
     return 's:' + signature.sign(req.sessionID, secret);
   }
 }

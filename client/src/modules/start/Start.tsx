@@ -34,7 +34,7 @@ export function Start({ onGetStarted, onSignIn, logoStyle, titleStyle, descStyle
               letterSpacing: 1,
             }}
           >
-            Spiko
+            Angama
           </Text>
         </Animated.View>
 

@@ -21,7 +21,7 @@ async function bootstrap() {
 
   app.use(
     session({
-      secret: process.env.SESSION_SECRET ?? 'spiko-secret',
+      secret: process.env.SESSION_SECRET ?? 'angama-secret',
       resave: false,
       saveUninitialized: false,
       cookie: {

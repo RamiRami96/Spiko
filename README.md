@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="./screen.jpeg" alt="Spiko app screenshot" width="280" />
+  <img src="./screen.jpeg" alt="Angama app screenshot" width="280" />
 </p>
 
-<h1 align="center">Spiko</h1>
+<h1 align="center">äñgämä</h1>
 
 <p align="center">
   Find and join speaking clubs. Practice public speaking, host sessions, and connect with people who want to get better at talking out loud.
@@ -10,7 +10,7 @@
 
 ## About
 
-Spiko is a mobile app for discovering, joining, and hosting speaking clubs. Users can browse active clubs, apply to attend as a **speaker** or **listener**, and hosts can review and manage applicants for the clubs they create. The project is a full-stack monorepo: an Expo/React Native client and a NestJS API backed by PostgreSQL.
+Angama is a mobile app for discovering, joining, and hosting speaking clubs. Users can browse active clubs, apply to attend as a **speaker** or **listener**, and hosts can review and manage applicants for the clubs they create. The project is a full-stack monorepo: an Expo/React Native client and a NestJS API backed by PostgreSQL.
 
 ## Features
 
@@ -39,7 +39,7 @@ Spiko is a mobile app for discovering, joining, and hosting speaking clubs. User
 ## Architecture
 
 ```
-Spiko/
+Angama/
 ├── client/                 # Expo / React Native app
 │   └── src/
 │       ├── app/             # expo-router routes (screens)
