@@ -1,57 +1,91 @@
-# Welcome to your Expo app 👋
+<p align="center">
+  <img src="./screen.jpeg" alt="Spiko app screenshot" width="280" />
+</p>
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<h1 align="center">Spiko</h1>
 
-## Get started
+<p align="center">
+  Find and join speaking clubs. Practice public speaking, host sessions, and connect with people who want to get better at talking out loud.
+</p>
 
-1. Install dependencies
+## About
 
-   ```bash
-   npm install
-   ```
+Spiko is a mobile app for discovering, joining, and hosting speaking clubs. Users can browse active clubs, apply to attend as a **speaker** or **listener**, and hosts can review and manage applicants for the clubs they create. The project is a full-stack monorepo: an Expo/React Native client and a NestJS API backed by PostgreSQL.
 
-2. Start the app
+## Features
 
-   ```bash
-   npx expo start
-   ```
+- **Authentication** — sign up / sign in with cookie-based sessions, account deletion
+- **Browse clubs** — searchable list of active speaking clubs
+- **Create a club** — host a session with a name, description, location, date, and member cap
+- **Club details** — view host info, current members, and club status
+- **Apply to a club** — join as a `SPEAKER` or `LISTENER`; applications go through `PENDING → APPROVED / REJECTED / WAITLISTED / CANCELLED`
+- **Settings** — manage account info, review/approve applicants for hosted clubs, track your own applications, sign out
 
-In the output, you'll find options to open the app in a
+## Tech Stack
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+**Client**
+- [Expo](https://expo.dev) / React Native (`expo-router` for file-based navigation)
+- TypeScript
+- [NativeWind](https://www.nativewind.dev) (Tailwind CSS for React Native)
+- [TanStack Query](https://tanstack.com/query) for server state
+- React Hook Form + Zod for form handling and validation
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+**Server**
+- [NestJS](https://nestjs.com) (TypeScript)
+- [Prisma ORM](https://www.prisma.io) with PostgreSQL
+- `express-session` for cookie-based session auth (with a bearer-token compatibility shim for native clients)
+- bcrypt for password hashing
 
-## Get a fresh project
+## Architecture
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+Spiko/
+├── client/                 # Expo / React Native app
+│   └── src/
+│       ├── app/             # expo-router routes (screens)
+│       ├── pages/           # Top-level page components
+│       ├── modules/         # Feature modules (sign-in, sign-up, clubs, club-detail,
+│       │                     create-club, settings, start), each with its own
+│       │                     components, hooks, and constants
+│       └── shared/          # Cross-feature models, API services, TanStack Query
+│                             hooks, and shared UI components
+│
+└── server/                  # NestJS API
+    ├── prisma/               # Prisma schema (User, Club, Registration)
+    └── src/
+        ├── api/
+        │   ├── auth/          # Sign up / sign in / sign out / session guard
+        │   ├── clubs/          # Club CRUD, registrations
+        │   └── users/          # User profile endpoints
+        ├── prisma/            # Prisma service/module
+        └── shared/            # Shared utils/types
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+**Data model** (Prisma): `User` hosts many `Club`s and creates many `Registration`s; a `Registration` links a `User` to a `Club` with a role (`SPEAKER` / `LISTENER`) and a status.
 
-### Other setup steps
+## Getting Started
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### Prerequisites
+- Node.js
+- A PostgreSQL database
+- [Expo Go](https://expo.dev/go) or an iOS/Android simulator
 
-## Learn more
+### Server
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+cd server
+npm install
+# create a .env with DATABASE_URL, DIRECT_URL, SESSION_SECRET
+npx prisma migrate dev
+npm run start:dev
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Client
 
-## Join the community
+```bash
+cd client
+npm install
+npx expo start
+```
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-# Spiko
+Then open the app in a development build, simulator, or Expo Go.
