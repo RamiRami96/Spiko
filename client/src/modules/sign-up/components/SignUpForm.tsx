@@ -1,4 +1,4 @@
-import { authService } from "@/shared/services";
+import { useSignUpMutation } from "@/shared/queries/auth.queries";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { router } from "expo-router";
 import { useForm } from "react-hook-form";
@@ -6,6 +6,7 @@ import { SignUpFormData, signUpSchema } from "../schemas/sign-up.schema";
 import { SignUp } from "../SignUp";
 
 export function SignUpForm() {
+  const signUpMutation = useSignUpMutation();
   const {
     control,
     handleSubmit,
@@ -23,7 +24,7 @@ export function SignUpForm() {
 
   const onSubmit = async (data: SignUpFormData) => {
     try {
-      await authService.signUp(data);
+      await signUpMutation.mutateAsync(data);
       router.replace("/clubs");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Something went wrong";

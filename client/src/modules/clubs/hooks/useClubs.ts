@@ -1,14 +1,9 @@
-import { useEffect } from "react";
-
-import { useClubsDispatch, useClubsState } from "@/state/clubs/clubs.context";
+import { useClubsQuery } from "@/shared/queries/clubs.queries";
 
 export function useClubs() {
-  const clubs = useClubsState();
-  const dispatch = useClubsDispatch();
+  const { data, isRefetching, refetch } = useClubsQuery();
 
-  useEffect(() => {
-    dispatch({ type: "PURGE_EXPIRED" });
-  }, []);
+  const clubs = (data ?? []).filter((c) => new Date(c.startDate) > new Date());
 
-  return clubs;
+  return { clubs, isRefetching, refetch };
 }

@@ -2,8 +2,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useCurrentUser } from "@/modules/settings/hooks/useCurrentUser";
-import { useApplicationsDispatch } from "@/state/applications/applications.context";
-import { useClubsDispatch, useClubsState } from "@/state/clubs/clubs.context";
+import { useApplyToClubMutation, useClubQuery, useDeleteClubMutation } from "@/shared/queries/clubs.queries";
 
 import { ClubDetail } from "../ClubDetail";
 import { useClubDetailModals } from "../hooks/useClubDetailModals";
@@ -20,31 +19,19 @@ export function ClubDetailContainer({ id, onBack }: Props) {
   const router = useRouter();
   const currentUser = useCurrentUser();
   const insets = useSafeAreaInsets();
-  const clubs = useClubsState();
-  const clubsDispatch = useClubsDispatch();
-  const applicationsDispatch = useApplicationsDispatch();
+  const { data: club } = useClubQuery(id);
+  const applyMutation = useApplyToClubMutation();
+  const deleteMutation = useDeleteClubMutation();
   const { successVisible, setSuccessVisible, warnVisible, setWarnVisible, deleteVisible, setDeleteVisible } = useClubDetailModals();
 
-  const club = clubs.find((c) => c.id === id);
   if (!club) return null;
 
   const { isHost, alreadyApplied } = useClubUserRelation(club, currentUser);
   const { status, canApply, applyLabel } = useClubStatus(club);
   const { membersRatio, spotsLeft } = useClubMembers(club);
 
-  const handleApply = () => {
-    if (currentUser) {
-      applicationsDispatch({
-        type: "APPLY",
-        entry: {
-          userId: currentUser.id,
-          userName: currentUser.name,
-          clubId: club.id,
-          clubName: club.name,
-        },
-      });
-    }
-    clubsDispatch({ type: "INCREMENT_MEMBER_COUNT", clubId: club.id });
+  const handleApply = async () => {
+    await applyMutation.mutateAsync(club.id);
     router.replace("/(main)/clubs");
   };
 
@@ -58,12 +45,12 @@ export function ClubDetailContainer({ id, onBack }: Props) {
 
   const handleConfirm = () => {
     setSuccessVisible(false);
-    handleApply();
+    void handleApply();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     setDeleteVisible(false);
-    clubsDispatch({ type: "REMOVE", clubId: club.id });
+    await deleteMutation.mutateAsync(club.id);
     router.replace("/(main)/clubs");
   };
 
@@ -83,7 +70,7 @@ export function ClubDetailContainer({ id, onBack }: Props) {
       onBack={onBack}
       onApplyPress={handleApplyPress}
       onConfirm={handleConfirm}
-      onDelete={handleDelete}
+      onDelete={() => void handleDelete()}
       onWarnClose={() => setWarnVisible(false)}
       onDeleteOpen={() => setDeleteVisible(true)}
       onDeleteClose={() => setDeleteVisible(false)}

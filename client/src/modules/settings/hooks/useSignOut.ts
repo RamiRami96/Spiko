@@ -1,16 +1,14 @@
 import { router } from "expo-router";
-import { useState } from "react";
 
-import { authService } from "@/shared/services";
+import { useSignOutMutation } from "@/shared/queries/auth.queries";
 
 export function useSignOut() {
-  const [isLoading, setIsLoading] = useState(false);
+  const mutation = useSignOutMutation();
 
   const handleSignOut = async () => {
-    setIsLoading(true);
-    await authService.signOut();
+    await mutation.mutateAsync();
     router.replace("/");
   };
 
-  return { isLoading, handleSignOut };
+  return { isLoading: mutation.isPending, handleSignOut };
 }

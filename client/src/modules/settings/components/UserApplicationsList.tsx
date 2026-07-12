@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 
-import { Application } from "@/state/applications/applications.reducer";
+import { Application } from "@/shared/models/application.model";
 
 import { ApplicationRow } from "./ApplicationRow";
 

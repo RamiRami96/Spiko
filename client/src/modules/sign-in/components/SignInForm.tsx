@@ -2,12 +2,13 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { router } from "expo-router";
 import { useForm } from "react-hook-form";
 
-import { authService } from "@/shared/services";
+import { useSignInMutation } from "@/shared/queries/auth.queries";
 
 import { SignInFormData, signInSchema } from "../schemas/sign-in.schema";
 import { SignIn } from "../SignIn";
 
 export function SignInForm() {
+  const signInMutation = useSignInMutation();
   const {
     control,
     handleSubmit,
@@ -23,7 +24,7 @@ export function SignInForm() {
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-      await authService.signIn(data.email, data.password);
+      await signInMutation.mutateAsync(data);
       router.replace("/clubs");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Something went wrong";

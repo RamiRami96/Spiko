@@ -1,14 +1,6 @@
-import { useEffect, useState } from "react";
-
-import { User } from "@/shared/models/user.model";
-import { authService } from "@/shared/services";
+import { useCurrentUserQuery } from "@/shared/queries/auth.queries";
 
 export function useCurrentUser() {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    authService.getCurrentUser().then(setUser);
-  }, []);
-
-  return user;
+  const { data } = useCurrentUserQuery();
+  return data ?? null;
 }

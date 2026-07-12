@@ -1,84 +1,49 @@
-import { useEffect, useState } from "react";
-
 import { Club } from "@/shared/models/club.model";
 import { User } from "@/shared/models/user.model";
-import { applicationsService } from "@/shared/services/applications.service";
-import { Application } from "@/state/applications/applications.reducer";
-import { useClubsDispatch } from "@/state/clubs/clubs.context";
+import {
+  useAcceptApplicantMutation,
+  useApplicantsQuery,
+  useMyApplicationsQuery,
+  useRejectApplicantMutation,
+} from "@/shared/queries/applications.queries";
+import { Application } from "@/shared/models/application.model";
 
 export function useApplicants(hostedClub: Club | null, user: User | null) {
-  const [applicants, setApplicants] = useState<Application[]>([]);
-  const [userApplications, setUserApplications] = useState<Application[]>([]);
-  const clubsDispatch = useClubsDispatch();
+  const applicantsQuery = useApplicantsQuery(hostedClub?.id);
+  const myApplicationsQuery = useMyApplicationsQuery(!!user);
+  const acceptMutation = useAcceptApplicantMutation();
+  const rejectMutation = useRejectApplicantMutation();
 
-  useEffect(() => {
-    if (!hostedClub) return;
-    applicationsService.getApplicants(hostedClub.id).then((data) => {
-      setApplicants(
-        data.map((a) => ({
-          userId: a.userId,
-          userName: a.user.name,
-          clubId: a.clubId,
-          clubName: hostedClub.name,
-          status: a.status,
-        }))
-      );
-    });
-  }, [hostedClub?.id]);
+  const applicants: Application[] = (applicantsQuery.data ?? []).map((a) => ({
+    userId: a.userId,
+    userName: a.user.name,
+    clubId: a.clubId,
+    clubName: hostedClub?.name ?? "",
+    status: a.status,
+  }));
 
-  useEffect(() => {
-    if (!user) return;
-    applicationsService.getMyApplications().then((data) => {
-      setUserApplications(
-        data.map((a) => ({
-          userId: user.id,
-          userName: user.name,
-          clubId: a.clubId,
-          clubName: a.clubName,
-          status: a.status,
-        }))
-      );
-    });
-  }, [user?.id]);
+  const userApplications: Application[] = user
+    ? (myApplicationsQuery.data ?? []).map((a) => ({
+        userId: user.id,
+        userName: user.name,
+        clubId: a.clubId,
+        clubName: a.clubName,
+        status: a.status,
+      }))
+    : [];
 
   const handleAccept = async (userId: string) => {
     if (!hostedClub) return;
-    await applicationsService.accept(hostedClub.id, userId);
-    setApplicants((prev) => prev.filter((a) => a.userId !== userId));
-    clubsDispatch({ type: "INCREMENT_MEMBER_COUNT", clubId: hostedClub.id });
+    await acceptMutation.mutateAsync({ clubId: hostedClub.id, userId });
   };
 
   const handleReject = async (userId: string) => {
     if (!hostedClub) return;
-    await applicationsService.reject(hostedClub.id, userId);
-    setApplicants((prev) => prev.filter((a) => a.userId !== userId));
+    await rejectMutation.mutateAsync({ clubId: hostedClub.id, userId });
   };
 
   const handleRefreshApplications = async () => {
-    if (hostedClub) {
-      const data = await applicationsService.getApplicants(hostedClub.id);
-      setApplicants(
-        data.map((a) => ({
-          userId: a.userId,
-          userName: a.user.name,
-          clubId: a.clubId,
-          clubName: hostedClub.name,
-          status: a.status,
-        }))
-      );
-    }
-    if (user) {
-      const data = await applicationsService.getMyApplications();
-      setUserApplications(
-        data.map((a) => ({
-          userId: user.id,
-          userName: user.name,
-          clubId: a.clubId,
-          clubName: a.clubName,
-          status: a.status,
-        }))
-      );
-    }
+    await Promise.all([applicantsQuery.refetch(), myApplicationsQuery.refetch()]);
   };
 
   return { applicants, userApplications, handleAccept, handleReject, handleRefreshApplications };

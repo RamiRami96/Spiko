@@ -29,6 +29,7 @@ export const authService = {
     try {
       return await request<User>("/auth/me");
     } catch {
+      await clearSid();
       return null;
     }
   },

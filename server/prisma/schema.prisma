@@ -1,0 +1,72 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  password    String
+  dateOfBirth DateTime
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+
+  hostedClubs   Club[]
+  registrations Registration[]
+}
+
+model Club {
+  id          String     @id @default(uuid())
+  name        String
+  description String
+  location    String
+  maxMembers  Int
+  status      ClubStatus @default(ACTIVE)
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime   @default(now())
+
+  hostId        String
+  host          User           @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  registrations Registration[]
+}
+
+model Registration {
+  id           String             @id @default(uuid())
+  role         RegistrationRole
+  status       RegistrationStatus @default(PENDING)
+  registeredAt DateTime           @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clubId String
+  club   Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, clubId])
+}
+
+enum ClubStatus {
+  ACTIVE
+  CANCELLED
+  FULL
+}
+
+enum RegistrationRole {
+  SPEAKER
+  LISTENER
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WAITLISTED
+  CANCELLED
+}

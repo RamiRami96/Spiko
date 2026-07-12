@@ -10,8 +10,7 @@ export function ClubsList() {
   const router = useRouter();
   const { top, bottom } = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
-  const clubs = useClubs();
+  const { clubs, isRefetching, refetch } = useClubs();
 
   const filteredClubs = useMemo(() => {
     if (!searchQuery.trim()) return clubs;
@@ -23,12 +22,6 @@ export function ClubsList() {
         c.location.toLowerCase().includes(q)
     );
   }, [searchQuery, clubs]);
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await new Promise((r) => setTimeout(r, 600));
-    setRefreshing(false);
-  };
 
   const handleCreateClub = () => router.push("/clubs/create");
 
@@ -49,8 +42,8 @@ export function ClubsList() {
       bottom={bottom}
       onPressClub={handlePressClub}
       onCreateClub={handleCreateClub}
-      refreshing={refreshing}
-      onRefresh={handleRefresh}
+      refreshing={isRefetching}
+      onRefresh={refetch}
     />
   );
 }
